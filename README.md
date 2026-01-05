@@ -1,308 +1,215 @@
-# 单细胞分析代码库
+# Single-Cell Analysis Code Repository
 
-本代码库包含单细胞RNA测序数据分析的完整流程，已从原始的大文件拆分成多个模块化的脚本文件，便于维护和复用。
+This repository contains analysis scripts for single-cell RNA-seq (scRNA-seq) data.
 
-## 📁 文件结构
+## Repository Structure
 
 ```
 scripts/
-├── README.md                        # 本文件
-├── utils.R                          # 自定义函数库
-├── 01_data_process.r                # 数据读取和预处理
-├── 02_HarmonyUMAP.r                 # Harmony整合、UMAP降维和细胞类型注释
-├── 03.1_subtype_VIC.r              # VIC细胞亚群分析
-├── 03.2_subtype_VEC.r              # VEC细胞亚群分析（含Monocle2、CytoTRACE2）
-├── 03.3_subtype_immuneCells.r      # 免疫细胞亚群分析（淋巴细胞、髓系细胞）
-├── 04_fibrotic_transitional_analysis.r  # 纤维化和过渡态分析
-├── 05_geneset_score.r              # 基因集打分（细胞周期、EMT等）
-├── 06_monocle2_analysis.r          # Monocle2轨迹分析
-├── 07_velocity.r                   # RNA velocity分析
-├── 08_gene_corr_analysisr.r        # 基因相关性分析
-├── 09_CCI.r                        # 细胞通讯分析（CellPhoneDB）
-└── 10_supplemental_analysis.R      # 补充分析
+├── README.md                         # This file
+├── README_cn.md                      # Chinese version
+├── utils.R                           # Custom utility functions
+├── 01_data_process.r                 # Data loading and preprocessing
+├── 02_HarmonyUMAP.r                  # Harmony integration, UMAP, and cell-type annotation
+├── 03.1_subtype_VIC.r                # VIC subtype analysis
+├── 03.2_subtype_VEC.r                # VEC subtype analysis (including Monocle2, CytoTRACE2)
+├── 03.3_subtype_immuneCells.r        # Immune cell subtype analysis (lymphoid & myeloid)
+├── 04_fibrotic_transitional_analysis.r  # Fibrosis and transitional-state analysis
+├── 05_geneset_score.r                # Gene set scoring (cell cycle, EMT, etc.)
+├── 06_monocle2_analysis.r            # Monocle2 trajectory analysis
+├── 07_velocity.r                     # RNA velocity analysis
+├── 08_gene_corr_analysisr.r          # Gene correlation analysis
+├── 09_CCI.r                          # Cell-cell communication (CellPhoneDB)
+└── 10_supplemental_analysis.R        # Supplemental analysis
 ```
 
-## 🚀 使用说明
+## Usage
 
-### 1. 环境准备
+### 1. Environment Setup
 
-确保已安装以下R包（根据实际需要）：
+Make sure the following R packages are installed (as needed):
 
 - Seurat
 - SCP
 - DoubletFinder
 - Harmony
 - monocle/monocle2
-- velocyto.R/SCVELO
+- velocyto.R / SCVELO
 - CytoTRACE2
 - CellPhoneDB
+- CellChat
 - openxlsx
 - dplyr
+- data.table
+- ComplexHeatmap
+- ClusterGVis
 - ggplot2
-- 其他依赖包
 
-### 2. 配置设置
-
-在运行脚本前，需要设置以下内容：
-
-- 工作目录路径 (`workdir`)
-- 数据路径 (`crpath`)
-- 样本信息表
-- 颜色配置
-- 其他全局参数
-
-### 3. 运行分析
-
-**按顺序运行各模块：**
-
-```r
-# 1. 首先加载自定义函数库
-source("scripts/utils.R")
-
-# 2. 数据预处理
-source("scripts/01_data_process.r")
-
-# 3. Harmony整合和细胞类型注释
-source("scripts/02_HarmonyUMAP.r")
-
-# 4. 各细胞亚群分析
-source("scripts/03.1_subtype_VIC.r")
-source("scripts/03.2_subtype_VEC.r")
-source("scripts/03.3_subtype_immuneCells.r")
-
-# 5. 纤维化和过渡态分析
-source("scripts/04_fibrotic_transitional_analysis.r")
-
-# 6. 基因集打分
-source("scripts/05_geneset_score.r")
-
-# 7. 轨迹分析
-source("scripts/06_monocle2_analysis.r")
-
-# 8. RNA velocity分析
-source("scripts/07_velocity.r")
-
-# 9. 基因相关性分析
-source("scripts/08_gene_corr_analysisr.r")
-
-# 10. 细胞通讯分析
-source("scripts/09_CCI.r")
-
-# 11. 补充分析
-source("scripts/10_supplemental_analysis.R")
-```
-
-## 📋 模块说明
+## Script Overview
 
 ### 01_data_process.r
 
-**功能：** 数据读取和预处理
+**Purpose:** Data loading and preprocessing
 
-- 构建样本信息表
-- 读取10X CellRanger输出数据
-- 创建Seurat对象并合并多个样本
-- 计算线粒体和血红蛋白基因比例
-- 使用DoubletFinder进行双细胞鉴定和过滤
-- QC统计和保存
+- Build sample metadata table
+- Read 10X Genomics CellRanger outputs
+- Create Seurat objects and merge multiple samples
+- Compute mitochondrial and hemoglobin gene fractions
+- Detect and filter doublets using DoubletFinder
+- QC summary statistics and save intermediate objects
 
-**输出文件：**
-- `0_raw.rds` - 原始Seurat对象
-- `0_createInfo.xlsx` - 样本信息表
 
 ### 02_HarmonyUMAP.r
 
-**功能：** Harmony整合、降维、聚类和细胞类型注释
+**Purpose:** Harmony integration, dimensionality reduction, clustering, and cell-type annotation
 
-- Harmony去批次效应整合
-- PCA降维和UMAP可视化
-- Leiden聚类算法（多种分辨率）
-- 差异表达分析
-- 基于标记基因的细胞类型注释
-- 细胞类型统计和可视化
+- Batch correction and integration with Harmony
+- PCA and UMAP visualization
+- Leiden clustering (multiple resolutions)
+- Differential expression analysis
+- Marker-based cell-type annotation
+- Cell-type composition summaries and visualization
 
-**输出文件：**
-- `4.har.rds` - Harmony整合后的Seurat对象
-- `dat_celltype.rds` - 注释后的Seurat对象
-- `4.har_clsDEG.xlsx` - 聚类差异表达基因
 
 ### 03.1_subtype_VIC.r
 
-**功能：** VIC（瓣膜间质细胞）亚群分析
+**Purpose:** VIC (valvular interstitial cell) subtype analysis
 
-- VIC细胞提取和重新整合
-- 亚群聚类和分辨率选择（clustree分析）
-- 亚群差异表达分析
-- 标记基因识别和可视化
-- 亚群在不同条件下的比例分析
-- 热图和特征图展示
+- Subset VIC cells and re-integrate
+- Sub-clustering and resolution selection (clustree)
+- Differential expression between subclusters
+- Marker identification and visualization
+- Subcluster proportion comparison across conditions
+- Heatmaps and feature plots
 
-**输出文件：**
-- `VIC_har.rds` - VIC亚群分析结果
-- `VIC_res0.3_fc1.5.xlsx` - VIC亚群差异表达基因
 
 ### 03.2_subtype_VEC.r
 
-**功能：** VEC（瓣膜内皮细胞）亚群分析
+**Purpose:** VEC (valvular endothelial cell) subtype analysis
 
-- VEC亚群处理
-- 下采样处理用于轨迹分析
-- Monocle2伪时间轨迹分析
-- CytoTRACE2细胞潜能评估
-- 细胞分化状态可视化
+- VEC subsetting and processing
+- Downsampling for trajectory inference
+- Monocle2 pseudotime trajectory analysis
+- CytoTRACE2 developmental potential estimation
+- Visualization of differentiation states
 
-**输出文件：**
-- `vic_downsample0.3.rds` - 下采样后的VIC数据
-- `vic_cytotrace2.rds` - CytoTRACE2分析结果
-- 相关轨迹分析结果文件
 
 ### 03.3_subtype_immuneCells.r
 
-**功能：** 免疫细胞亚群分析
+**Purpose:** Immune cell subtype analysis
 
-- 淋巴细胞（Lymphocyte）和髓系细胞（Myeloid cell）分别分析
-- Harmony整合和聚类
-- 多种分辨率的聚类结果比较
-- 亚群差异表达分析
-- 标记基因识别
-- 富集分析（GO/KEGG等）
+- Separate analysis for lymphoid and myeloid cells
+- Harmony integration and clustering
+- Comparison across multiple clustering resolutions
+- Differential expression between subclusters
+- Marker identification
+- Enrichment analyses (GO/KEGG, etc.)
 
-**输出文件：**
-- `Lymphocyte.rds` / `Myeloid cell.rds` - 免疫细胞亚群分析结果
-- 差异表达基因Excel文件
-- 富集分析结果
 
 ### 04_fibrotic_transitional_analysis.r
 
-**功能：** 纤维化和过渡态分析
+**Purpose:** Fibrosis and transitional-state analysis
 
-- Pro-fibrotic vs Anti-fibrotic VIC差异分析
-- 不同分组条件下的纤维化相关基因分析
-- VIC和VEC过渡态细胞识别（基于ModuleScore）
-- 过渡态细胞在UMAP空间中的分布
-- 过渡态细胞比例统计
+- Differential analysis of pro-fibrotic vs anti-fibrotic VIC programs
+- Fibrosis-related gene analysis across experimental groups
+- Identification of transitional-state cells in VIC/VEC (ModuleScore-based)
+- Distribution of transitional cells in UMAP space
+- Proportion statistics of transitional cells across conditions
 
-**输出文件：**
-- 各分组条件下的纤维化差异基因Excel文件
-- 过渡态分析结果
 
 ### 05_geneset_score.r
 
-**功能：** 基因集打分
+**Purpose:** Gene set scoring
 
-- 细胞周期评分（G1/S期和G2/M期）
-- EMT（上皮-间质转化）评分
-- 其他基因集模块评分（AddModuleScore）
-- 评分在UMAP空间中的可视化
-- 评分在不同条件下的比较分析
+- Cell cycle scoring (G1/S and G2/M)
+- EMT (epithelial–mesenchymal transition) scoring
+- Other module scores using AddModuleScore
+- Visualization of scores in UMAP space
+- Group-wise comparisons of scores
 
-**输出文件：**
-- 基因集评分结果
-- 可视化图表
 
 ### 06_monocle2_analysis.r
 
-**功能：** Monocle2轨迹分析
+**Purpose:** Monocle2 trajectory analysis
 
-- Monocle2伪时间轨迹构建
-- 轨迹分支点识别
-- BEAM（Branched Expression Analysis Modeling）分析
-- 不同状态在伪时间上的分布
-- 轨迹可视化
-- 伪时间密度分布分析
+- Build Monocle2 pseudotime trajectories
+- Identify branching points
+- BEAM (Branched Expression Analysis Modeling)
+- Distribution of states along pseudotime
+- Trajectory visualization
+- Pseudotime density analysis
 
-**输出文件：**
-- Monocle2对象文件（.Rds）
-- BEAM分析结果文件
-- 轨迹可视化图表
 
 ### 07_velocity.r
 
-**功能：** RNA velocity分析
+**Purpose:** RNA velocity analysis
 
-- velocyto.R环境配置
-- Loom文件读取和准备
-- 剪切和未剪切转录本矩阵处理
-- RunSCVELO分析
-- 速度向量在UMAP空间中的可视化
-- 流场图（stream plot）展示
+- Configure velocyto.R environment
+- Read and prepare loom files
+- Process spliced/unspliced matrices
+- Run SCVELO analysis
+- Visualize velocity vectors on UMAP
+- Stream/flow plots
 
-**输出文件：**
-- `vic_scvelo_res.rds` - SCVELO分析结果
-- RNA velocity可视化图表
 
 ### 08_gene_corr_analysisr.r
 
-**功能：** 基因相关性分析
+**Purpose:** Gene correlation analysis
 
-- 关注基因的提取（如VCAM1、PECAM1、ACTA2等）
-- 基因在不同组间的表达量比较
-- 组间统计检验（t检验、Wilcoxon检验）
-- 结果汇总和导出
+- Extract genes of interest (e.g., VCAM1, PECAM1, ACTA2)
+- Compare gene expression across groups
+- Statistical tests (t-test, Wilcoxon test)
+- Summarize and export results
 
-**输出文件：**
-- `gene_GroupSep_comparison_results.csv` - 基因组间比较结果
 
 ### 09_CCI.r
 
-**功能：** 细胞通讯分析（CellPhoneDB）
+**Purpose:** Cell–cell communication analysis (CellPhoneDB)
 
-- CellPhoneDB输入文件准备（表达矩阵和元数据）
-- 分别处理不同组织（Tri、Mit）的数据
-- CellPhoneDB结果读取和处理
-- 配体-受体相互作用分析
-- 信号通路富集分析
-- 结果可视化
+- Prepare CellPhoneDB input files (expression matrix and metadata)
+- Process data by tissue (Tri, Mit)
+- Read and post-process CellPhoneDB outputs
+- Ligand–receptor interaction analysis
+- Pathway enrichment analysis
+- Visualization of results
 
-**输出文件：**
-- `dt_input/` / `TV_input/` / `MV_input/` - CellPhoneDB输入文件目录
-- 统计分析结果文件
-- 可视化图表
 
 ### 10_supplemental_analysis.R
 
-**功能：** 补充分析
+**Purpose:** Supplemental analyses
 
-- 样本分类（AF vs SR，FMR vs FTR）
-- 试验条件排除分析
-- 细胞比例统计分析
-- ANOVA分析
-- 数据重新分组和可视化
-- 其他补充性分析
+- Sample grouping (AF vs SR, FMR vs FTR)
+- Exclusion/sensitivity analyses under different criteria
+- Cell proportion statistics
+- ANOVA
+- Regrouping and visualization
+- Additional exploratory analyses
 
-**输出文件：**
-- 重新分类后的数据对象
-- 统计分析结果
-- 补充图表
 
-## ⚠️ 注意事项
+## Notes
 
-1. **路径修改**：所有文件路径都是示例路径，请根据实际情况修改
-2. **依赖包**：某些分析需要特定的R包和环境，请确保已正确安装
-   - velocyto.R需要特定的conda环境和系统库配置
-   - CellPhoneDB需要Python环境和命令行工具
-3. **数据文件**：确保所需的数据文件（.rds文件、loom文件等）存在于指定路径
-4. **内存需求**：单细胞分析通常需要较大内存，请确保系统资源充足
-5. **运行顺序**：建议按照编号顺序运行脚本，因为后续脚本依赖前面脚本的输出
-6. **文件命名**：注意`08_gene_corr_analysisr.r`文件名中有拼写错误（analysisr应为analysis）
+1. **Update file paths:** All paths are placeholders. Please update them according to your local environment.
+2. **Dependencies:** Some analyses require specific environments and system libraries.
+   - `velocyto.R` may require a dedicated conda environment and system dependencies.
+   - `CellPhoneDB` requires a Python environment and CLI tools.
+3. **Input files:** Ensure required inputs (e.g., `.rds`, `.loom`) exist in the specified locations.
+4. **Memory requirements:** Single-cell analyses can be memory-intensive; make sure sufficient resources are available.
+5. **Execution order:** It is recommended to run scripts in numeric order, as later scripts depend on outputs from earlier steps.
+6. **Filename typo:** The file `08_gene_corr_analysisr.r` contains a typo (`analysisr` should be `analysis`).
 
-## 🔧 自定义函数
+## Custom Utility Functions
 
-所有自定义函数都在 `utils.R` 中定义，包括：
+All custom helper functions are defined in `utils.R`, including:
 
-- `qcstat()` - QC统计函数
-- `Integration_SCP()` - SCP整合函数
-- `RunDEtest()` - 差异表达分析函数
-- `CellDimPlot()` / `FeatureDimPlot()` - 降维图绘制
-- `CellStatPlot()` / `FeatureStatPlot()` - 统计图绘制
-- `GroupHeatmapy()` / `FeatureHeatmap()` - 热图绘制
-- `ratio_plot()` - 比例图绘制
-- `run_monocle()` - Monocle轨迹分析封装函数
-- `prepareLoom()` - Loom文件准备函数
-- `run_cluster_anova()` - 聚类ANOVA分析
-- 其他辅助函数
+- `qcstat()` - QC summary statistics
+- `ratio_plot()` - Proportion plot visualization
+- `run_monocle()` - Wrapper for Monocle trajectory analysis
+- `prepareLoom()` - Loom preparation helper
+- `run_cluster_anova()` - Cluster-level ANOVA
+- Other utility helpers
 
-## 📝 版本历史
+## Version History
 
-- 2024: 初始版本
+- Initial release
 
-如有问题或建议，请联系代码维护者。
+For questions or suggestions, please contact the repository maintainer.
