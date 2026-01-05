@@ -7,7 +7,7 @@ This repository contains analysis scripts for single-cell RNA-seq (scRNA-seq) da
 ```
 scripts/
 ├── README.md                         # This file
-├── README_cn.md                      # Chinese version
+├── README_cn.md                      # CN version
 ├── utils.R                           # Custom utility functions
 ├── 01_data_process.r                 # Data loading and preprocessing
 ├── 02_HarmonyUMAP.r                  # Harmony integration, UMAP, and cell-type annotation
@@ -201,3 +201,4 @@ All custom helper functions are defined in `utils.R`, including:
 - Initial release
 
 For questions or suggestions, please contact the repository maintainer.
+
