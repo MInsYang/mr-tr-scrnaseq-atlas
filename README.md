@@ -58,7 +58,6 @@ Make sure the following R packages are installed (as needed):
 - Detect and filter doublets using DoubletFinder
 - QC summary statistics and save intermediate objects
 
-
 ### 02_HarmonyUMAP.r
 
 **Purpose:** Harmony integration, dimensionality reduction, clustering, and cell-type annotation
@@ -70,10 +69,9 @@ Make sure the following R packages are installed (as needed):
 - Marker-based cell-type annotation
 - Cell-type composition summaries and visualization
 
-
 ### 03.1_subtype_VIC.r
 
-**Purpose:** VIC (valvular interstitial cell) subtype analysis
+**Purpose:** VIC  subtype analysis
 
 - Subset VIC cells and re-integrate
 - Sub-clustering and resolution selection (clustree)
@@ -82,17 +80,15 @@ Make sure the following R packages are installed (as needed):
 - Subcluster proportion comparison across conditions
 - Heatmaps and feature plots
 
-
 ### 03.2_subtype_VEC.r
 
-**Purpose:** VEC (valvular endothelial cell) subtype analysis
+**Purpose:** VEC subtype analysis
 
 - VEC subsetting and processing
 - Downsampling for trajectory inference
 - Monocle2 pseudotime trajectory analysis
 - CytoTRACE2 developmental potential estimation
 - Visualization of differentiation states
-
 
 ### 03.3_subtype_immuneCells.r
 
@@ -105,7 +101,6 @@ Make sure the following R packages are installed (as needed):
 - Marker identification
 - Enrichment analyses (GO/KEGG, etc.)
 
-
 ### 04_fibrotic_transitional_analysis.r
 
 **Purpose:** Fibrosis and transitional-state analysis
@@ -116,7 +111,6 @@ Make sure the following R packages are installed (as needed):
 - Distribution of transitional cells in UMAP space
 - Proportion statistics of transitional cells across conditions
 
-
 ### 05_geneset_score.r
 
 **Purpose:** Gene set scoring
@@ -126,7 +120,6 @@ Make sure the following R packages are installed (as needed):
 - Other module scores using AddModuleScore
 - Visualization of scores in UMAP space
 - Group-wise comparisons of scores
-
 
 ### 06_monocle2_analysis.r
 
@@ -139,7 +132,6 @@ Make sure the following R packages are installed (as needed):
 - Trajectory visualization
 - Pseudotime density analysis
 
-
 ### 07_velocity.r
 
 **Purpose:** RNA velocity analysis
@@ -151,7 +143,6 @@ Make sure the following R packages are installed (as needed):
 - Visualize velocity vectors on UMAP
 - Stream/flow plots
 
-
 ### 08_gene_corr_analysisr.r
 
 **Purpose:** Gene correlation analysis
@@ -160,7 +151,6 @@ Make sure the following R packages are installed (as needed):
 - Compare gene expression across groups
 - Statistical tests (t-test, Wilcoxon test)
 - Summarize and export results
-
 
 ### 09_CCI.r
 
@@ -173,7 +163,6 @@ Make sure the following R packages are installed (as needed):
 - Pathway enrichment analysis
 - Visualization of results
 
-
 ### 10_supplemental_analysis.R
 
 **Purpose:** Supplemental analyses
@@ -184,7 +173,6 @@ Make sure the following R packages are installed (as needed):
 - ANOVA
 - Regrouping and visualization
 - Additional exploratory analyses
-
 
 ## Notes
 
